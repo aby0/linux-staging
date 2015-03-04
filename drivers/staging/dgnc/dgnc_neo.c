@@ -119,15 +119,15 @@ static inline void neo_set_cts_flow_control(struct channel_t *ch)
 
 	/* Turn on auto CTS flow control */
 #if 1
-	ier |= (UART_17158_IER_CTSDSR);
+	ier |= UART_17158_IER_CTSDSR;
 #else
 	ier &= ~(UART_17158_IER_CTSDSR);
 #endif
 
-	efr |= (UART_17158_EFR_ECB | UART_17158_EFR_CTSDSR);
+	efr |= UART_17158_EFR_ECB | UART_17158_EFR_CTSDSR;
 
 	/* Turn off auto Xon flow control */
-	efr &= ~(UART_17158_EFR_IXON);
+	efr &= ~UART_17158_EFR_IXON;
 
 	/* Why? Becuz Exar's spec says we have to zero it out before setting it */
 	writeb(0, &ch->ch_neo_uart->efr);
@@ -155,15 +155,15 @@ static inline void neo_set_rts_flow_control(struct channel_t *ch)
 
 	/* Turn on auto RTS flow control */
 #if 1
-	ier |= (UART_17158_IER_RTSDTR);
+	ier |= UART_17158_IER_RTSDTR;
 #else
 	ier &= ~(UART_17158_IER_RTSDTR);
 #endif
-	efr |= (UART_17158_EFR_ECB | UART_17158_EFR_RTSDTR);
+	efr |= UART_17158_EFR_ECB | UART_17158_EFR_RTSDTR;
 
 	/* Turn off auto Xoff flow control */
-	ier &= ~(UART_17158_IER_XOFF);
-	efr &= ~(UART_17158_EFR_IXOFF);
+	ier &= ~UART_17158_IER_XOFF;
+	efr &= ~UART_17158_EFR_IXOFF;
 
 	/* Why? Becuz Exar's spec says we have to zero it out before setting it */
 	writeb(0, &ch->ch_neo_uart->efr);
@@ -185,7 +185,7 @@ static inline void neo_set_rts_flow_control(struct channel_t *ch)
 	 * RTS/DTR# output pin (MCR bit-0 or 1 to logic 1 after
 	 * it is enabled.
 	 */
-	ch->ch_mostat |= (UART_MCR_RTS);
+	ch->ch_mostat |= UART_MCR_RTS;
 
 	neo_pci_posting_flush(ch->ch_bd);
 }
@@ -197,11 +197,11 @@ static inline void neo_set_ixon_flow_control(struct channel_t *ch)
 	unsigned char efr = readb(&ch->ch_neo_uart->efr);
 
 	/* Turn off auto CTS flow control */
-	ier &= ~(UART_17158_IER_CTSDSR);
-	efr &= ~(UART_17158_EFR_CTSDSR);
+	ier &= ~UART_17158_IER_CTSDSR;
+	efr &= ~UART_17158_EFR_CTSDSR;
 
 	/* Turn on auto Xon flow control */
-	efr |= (UART_17158_EFR_ECB | UART_17158_EFR_IXON);
+	efr |= UART_17158_EFR_ECB | UART_17158_EFR_IXON;
 
 	/* Why? Becuz Exar's spec says we have to zero it out before setting it */
 	writeb(0, &ch->ch_neo_uart->efr);
@@ -234,12 +234,12 @@ static inline void neo_set_ixoff_flow_control(struct channel_t *ch)
 	unsigned char efr = readb(&ch->ch_neo_uart->efr);
 
 	/* Turn off auto RTS flow control */
-	ier &= ~(UART_17158_IER_RTSDTR);
-	efr &= ~(UART_17158_EFR_RTSDTR);
+	ier &= ~UART_17158_IER_RTSDTR;
+	efr &= ~UART_17158_EFR_RTSDTR;
 
 	/* Turn on auto Xoff flow control */
-	ier |= (UART_17158_IER_XOFF);
-	efr |= (UART_17158_EFR_ECB | UART_17158_EFR_IXOFF);
+	ier |= UART_17158_IER_XOFF;
+	efr |= UART_17158_EFR_ECB | UART_17158_EFR_IXOFF;
 
 	/* Why? Becuz Exar's spec says we have to zero it out before setting it */
 	writeb(0, &ch->ch_neo_uart->efr);
@@ -272,13 +272,13 @@ static inline void neo_set_no_input_flow_control(struct channel_t *ch)
 	unsigned char efr = readb(&ch->ch_neo_uart->efr);
 
 	/* Turn off auto RTS flow control */
-	ier &= ~(UART_17158_IER_RTSDTR);
-	efr &= ~(UART_17158_EFR_RTSDTR);
+	ier &= ~UART_17158_IER_RTSDTR;
+	efr &= ~UART_17158_EFR_RTSDTR;
 
 	/* Turn off auto Xoff flow control */
-	ier &= ~(UART_17158_IER_XOFF);
+	ier &= ~UART_17158_IER_XOFF;
 	if (ch->ch_c_iflag & IXON)
-		efr &= ~(UART_17158_EFR_IXOFF);
+		efr &= ~UART_17158_EFR_IXOFF;
 	else
 		efr &= ~(UART_17158_EFR_ECB | UART_17158_EFR_IXOFF);
 
@@ -312,12 +312,12 @@ static inline void neo_set_no_output_flow_control(struct channel_t *ch)
 	unsigned char efr = readb(&ch->ch_neo_uart->efr);
 
 	/* Turn off auto CTS flow control */
-	ier &= ~(UART_17158_IER_CTSDSR);
-	efr &= ~(UART_17158_EFR_CTSDSR);
+	ier &= ~UART_17158_IER_CTSDSR;
+	efr &= ~UART_17158_EFR_CTSDSR;
 
 	/* Turn off auto Xon flow control */
 	if (ch->ch_c_iflag & IXOFF)
-		efr &= ~(UART_17158_EFR_IXON);
+		efr &= ~UART_17158_EFR_IXON;
 	else
 		efr &= ~(UART_17158_EFR_ECB | UART_17158_EFR_IXON);
 
@@ -426,7 +426,7 @@ static inline void neo_parse_isr(struct dgnc_board *brd, uint port)
 		/*
 		 * Yank off the upper 2 bits, which just show that the FIFO's are enabled.
 		 */
-		isr &= ~(UART_17158_IIR_FIFO_ENABLED);
+		isr &= ~UART_17158_IIR_FIFO_ENABLED;
 
 		if (isr & (UART_17158_IIR_RDI_TIMEOUT | UART_IIR_RDI)) {
 			/* Read data from uart -> queue */
@@ -497,7 +497,7 @@ static inline void neo_parse_isr(struct dgnc_board *brd, uint port)
 				} else {
 					spin_lock_irqsave(&ch->ch_lock,
 							  flags);
-					ch->ch_mostat &= ~(UART_MCR_RTS);
+					ch->ch_mostat &= ~UART_MCR_RTS;
 					spin_unlock_irqrestore(&ch->ch_lock,
 							       flags);
 				}
@@ -511,7 +511,7 @@ static inline void neo_parse_isr(struct dgnc_board *brd, uint port)
 				} else {
 					spin_lock_irqsave(&ch->ch_lock,
 							  flags);
-					ch->ch_mostat &= ~(UART_MCR_DTR);
+					ch->ch_mostat &= ~UART_MCR_DTR;
 					spin_unlock_irqrestore(&ch->ch_lock,
 							       flags);
 				}
@@ -1456,7 +1456,7 @@ static void neo_copy_data_from_queue_to_uart(struct channel_t *ch)
 		/* Cache the LSR bits for later parsing */
 		ch->ch_cached_lsr |= lsrbits;
 		if (ch->ch_cached_lsr & UART_LSR_THRE) {
-			ch->ch_cached_lsr &= ~(UART_LSR_THRE);
+			ch->ch_cached_lsr &= ~UART_LSR_THRE;
 
 			/*
 			 * If RTS Toggle mode is on, turn on RTS now if not already set,
@@ -1464,10 +1464,10 @@ static void neo_copy_data_from_queue_to_uart(struct channel_t *ch)
 			 */
 			if (ch->ch_digi.digi_flags & DIGI_RTS_TOGGLE) {
 				if (!(ch->ch_mostat & UART_MCR_RTS)) {
-					ch->ch_mostat |= (UART_MCR_RTS);
+					ch->ch_mostat |= UART_MCR_RTS;
 					neo_assert_modem_signals(ch);
 				}
-				ch->ch_tun.un_flags |= (UN_EMPTY);
+				ch->ch_tun.un_flags |= UN_EMPTY;
 			}
 			/*
 			 * If DTR Toggle mode is on, turn on DTR now if not already set,
@@ -1475,10 +1475,10 @@ static void neo_copy_data_from_queue_to_uart(struct channel_t *ch)
 			 */
 			if (ch->ch_digi.digi_flags & DIGI_DTR_TOGGLE) {
 				if (!(ch->ch_mostat & UART_MCR_DTR)) {
-					ch->ch_mostat |= (UART_MCR_DTR);
+					ch->ch_mostat |= UART_MCR_DTR;
 					neo_assert_modem_signals(ch);
 				}
-				ch->ch_tun.un_flags |= (UN_EMPTY);
+				ch->ch_tun.un_flags |= UN_EMPTY;
 			}
 
 			writeb(ch->ch_wqueue[ch->ch_w_tail], &ch->ch_neo_uart->txrx);
@@ -1535,10 +1535,10 @@ static void neo_copy_data_from_queue_to_uart(struct channel_t *ch)
 		 */
 		if (ch->ch_digi.digi_flags & DIGI_RTS_TOGGLE) {
 			if (!(ch->ch_mostat & UART_MCR_RTS)) {
-				ch->ch_mostat |= (UART_MCR_RTS);
+				ch->ch_mostat |= UART_MCR_RTS;
 				neo_assert_modem_signals(ch);
 			}
-			ch->ch_tun.un_flags |= (UN_EMPTY);
+			ch->ch_tun.un_flags |= UN_EMPTY;
 		}
 
 		/*
@@ -1547,10 +1547,10 @@ static void neo_copy_data_from_queue_to_uart(struct channel_t *ch)
 		 */
 		if (ch->ch_digi.digi_flags & DIGI_DTR_TOGGLE) {
 			if (!(ch->ch_mostat & UART_MCR_DTR)) {
-				ch->ch_mostat |= (UART_MCR_DTR);
+				ch->ch_mostat |= UART_MCR_DTR;
 				neo_assert_modem_signals(ch);
 			}
-			ch->ch_tun.un_flags |= (UN_EMPTY);
+			ch->ch_tun.un_flags |= UN_EMPTY;
 		}
 
 		memcpy_toio(&ch->ch_neo_uart->txrxburst, ch->ch_wqueue + tail, s);
@@ -1753,7 +1753,7 @@ static void neo_send_break(struct channel_t *ch, int msecs)
 
 			writeb((temp & ~UART_LCR_SBC), &ch->ch_neo_uart->lcr);
 			neo_pci_posting_flush(ch->ch_bd);
-			ch->ch_flags &= ~(CH_BREAK_SENDING);
+			ch->ch_flags &= ~CH_BREAK_SENDING;
 			ch->ch_stop_sending_break = 0;
 		}
 		return;
@@ -1772,7 +1772,7 @@ static void neo_send_break(struct channel_t *ch, int msecs)
 
 		writeb((temp | UART_LCR_SBC), &ch->ch_neo_uart->lcr);
 		neo_pci_posting_flush(ch->ch_bd);
-		ch->ch_flags |= (CH_BREAK_SENDING);
+		ch->ch_flags |= CH_BREAK_SENDING;
 	}
 }
 
