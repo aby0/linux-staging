@@ -2318,10 +2318,7 @@ ksocknal_flush_stale_txs(ksock_peer_t *peer)
 
 	write_lock_bh(&ksocknal_data.ksnd_global_lock);
 
-	while (!list_empty (&peer->ksnp_tx_queue)) {
-		tx = list_entry (peer->ksnp_tx_queue.next,
-				     ksock_tx_t, tx_list);
-
+	list_for_each_entry(tx, &peer->ksnp_tx_queue, tx_list) {
 		if (!cfs_time_aftereq(cfs_time_current(),
 				      tx->tx_deadline))
 			break;
@@ -2556,9 +2553,7 @@ ksocknal_reaper (void *arg)
 
 		/* reschedule all the connections that stalled with ENOMEM... */
 		nenomem_conns = 0;
-		while (!list_empty (&enomem_conns)) {
-			conn = list_entry (enomem_conns.next,
-					       ksock_conn_t, ksnc_tx_list);
+		list_for_each_entry(conn, &enomem_conns, ksnc_tx_list) {
 			list_del (&conn->ksnc_tx_list);
 
 			sched = conn->ksnc_scheduler;

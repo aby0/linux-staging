@@ -467,9 +467,7 @@ cfs_wi_shutdown (void)
 		}
 		spin_unlock(&cfs_wi_data.wi_glock);
 	}
-	while (!list_empty(&cfs_wi_data.wi_scheds)) {
-		sched = list_entry(cfs_wi_data.wi_scheds.next,
-				       struct cfs_wi_sched, ws_list);
+	list_for_each_entry(sched, &cfs_wi_data.wi_scheds, ws_list) {
 		list_del(&sched->ws_list);
 		LIBCFS_FREE(sched, sizeof(*sched));
 	}

@@ -170,9 +170,7 @@ int class_del_uuid(const char *uuid)
 		return -EINVAL;
 	}
 
-	while (!list_empty(&deathrow)) {
-		data = list_entry(deathrow.next, struct uuid_nid_data,
-				      un_list);
+	list_for_each_entry(data, &deathrow, un_list) {
 		list_del(&data->un_list);
 
 		CDEBUG(D_INFO, "del uuid %s %s/%d\n",

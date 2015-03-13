@@ -153,9 +153,7 @@ lnet_peer_tables_cleanup(void)
 
 		lnet_net_unlock(i);
 
-		while (!list_empty(&deathrow)) {
-			lp = list_entry(deathrow.next,
-					    lnet_peer_t, lp_hashlist);
+		list_for_each_entry(lp, &deathrow, lp_hashlist) {
 			list_del(&lp->lp_hashlist);
 			LIBCFS_FREE(lp, sizeof(*lp));
 		}

@@ -222,10 +222,7 @@ srpc_service_fini(struct srpc_service *svc)
 
 		LASSERT(list_empty(&scd->scd_rpc_active));
 
-		while (!list_empty(&scd->scd_rpc_free)) {
-			rpc = list_entry(scd->scd_rpc_free.next,
-					     struct srpc_server_rpc,
-					     srpc_list);
+		list_for_each_entry(rpc, &scd->scd_rpc_free, srpc_list) {
 			list_del(&rpc->srpc_list);
 			LIBCFS_FREE(rpc, sizeof(*rpc));
 		}

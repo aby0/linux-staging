@@ -170,9 +170,7 @@ void rct_fini(struct rmtacl_ctl_table *rct)
 
 	spin_lock(&rct->rct_lock);
 	for (i = 0; i < RCE_HASHES; i++)
-		while (!list_empty(&rct->rct_entries[i])) {
-			rce = list_entry(rct->rct_entries[i].next,
-					     struct rmtacl_ctl_entry, rce_list);
+		list_for_each_entry(rce, &rct->rct_entries[i], rce_list) {
 			rce_free(rce);
 		}
 	spin_unlock(&rct->rct_lock);
@@ -289,9 +287,7 @@ void et_fini(struct eacl_table *et)
 
 	spin_lock(&et->et_lock);
 	for (i = 0; i < EE_HASHES; i++)
-		while (!list_empty(&et->et_entries[i])) {
-			ee = list_entry(et->et_entries[i].next,
-					    struct eacl_entry, ee_list);
+		list_for_each_entry(ee, &et->et_entries[i], ee_list) {
 			ee_free(ee);
 		}
 	spin_unlock(&et->et_lock);

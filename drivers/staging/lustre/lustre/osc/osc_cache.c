@@ -1884,9 +1884,7 @@ static int get_write_extents(struct osc_object *obj, struct list_head *rpclist)
 	unsigned int max_pages = cli->cl_max_pages_per_rpc;
 
 	LASSERT(osc_object_is_locked(obj));
-	while (!list_empty(&obj->oo_hp_exts)) {
-		ext = list_entry(obj->oo_hp_exts.next, struct osc_extent,
-				     oe_link);
+	list_for_each_entry(ext, &obj->oo_hp_exts, oe_link) {
 		LASSERT(ext->oe_state == OES_CACHE);
 		if (!try_to_add_extent_for_io(cli, ext, rpclist, &page_count,
 					      &max_pages))
@@ -1896,9 +1894,7 @@ static int get_write_extents(struct osc_object *obj, struct list_head *rpclist)
 	if (page_count == max_pages)
 		return page_count;
 
-	while (!list_empty(&obj->oo_urgent_exts)) {
-		ext = list_entry(obj->oo_urgent_exts.next,
-				     struct osc_extent, oe_link);
+	list_for_each_entry(ext, &obj->oo_urgent_exts, oe_link) {
 		if (!try_to_add_extent_for_io(cli, ext, rpclist, &page_count,
 					      &max_pages))
 			return page_count;
@@ -2682,10 +2678,9 @@ again:
 
 	osc_list_maint(cli, obj);
 
-	while (!list_empty(&list)) {
+	list_for_each_entry(ext, &list, oe_link) {
 		int rc;
 
-		ext = list_entry(list.next, struct osc_extent, oe_link);
 		list_del_init(&ext->oe_link);
 
 		/* extent may be in OES_ACTIVE state because inode mutex

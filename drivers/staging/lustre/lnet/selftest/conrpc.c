@@ -1364,8 +1364,7 @@ lstcon_rpc_cleanup_wait(void)
 
 	spin_unlock(&console_session.ses_rpc_lock);
 
-	while (!list_empty(&zlist)) {
-		crpc = list_entry(zlist.next, lstcon_rpc_t, crp_link);
+	list_for_each_entry(crpc, &zlist, crp_link) {
 
 		list_del(&crpc->crp_link);
 		LIBCFS_FREE(crpc, sizeof(lstcon_rpc_t));

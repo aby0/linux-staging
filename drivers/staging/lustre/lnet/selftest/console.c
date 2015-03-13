@@ -334,9 +334,7 @@ lstcon_group_move(lstcon_group_t *old, lstcon_group_t *new)
 {
 	lstcon_ndlink_t *ndl;
 
-	while (!list_empty(&old->grp_ndl_list)) {
-		ndl = list_entry(old->grp_ndl_list.next,
-				     lstcon_ndlink_t, ndl_link);
+	list_for_each_entry(ndl, &old->grp_ndl_list, ndl_link) {
 		lstcon_group_ndlink_move(old, new, ndl);
 	}
 }
@@ -1090,9 +1088,7 @@ lstcon_batch_destroy(lstcon_batch_t *bat)
 
 	list_del(&bat->bat_link);
 
-	while (!list_empty(&bat->bat_test_list)) {
-		test = list_entry(bat->bat_test_list.next,
-				      lstcon_test_t, tes_link);
+	list_for_each_entry(test, &bat->bat_test_list, tes_link) {
 		LASSERT(list_empty(&test->tes_trans_list));
 
 		list_del(&test->tes_link);
@@ -1106,17 +1102,13 @@ lstcon_batch_destroy(lstcon_batch_t *bat)
 
 	LASSERT(list_empty(&bat->bat_trans_list));
 
-	while (!list_empty(&bat->bat_cli_list)) {
-		ndl = list_entry(bat->bat_cli_list.next,
-				     lstcon_ndlink_t, ndl_link);
+	list_for_each_entry(ndl, &bat->bat_cli_list, ndl_link) {
 		list_del_init(&ndl->ndl_link);
 
 		lstcon_ndlink_release(ndl);
 	}
 
-	while (!list_empty(&bat->bat_srv_list)) {
-		ndl = list_entry(bat->bat_srv_list.next,
-				     lstcon_ndlink_t, ndl_link);
+	list_for_each_entry(ndl, &bat->bat_srv_list, ndl_link) {
 		list_del_init(&ndl->ndl_link);
 
 		lstcon_ndlink_release(ndl);
@@ -1835,17 +1827,12 @@ lstcon_session_end(void)
 	console_session.ses_feats_updated = 0;
 
 	/* destroy all batches */
-	while (!list_empty(&console_session.ses_bat_list)) {
-		bat = list_entry(console_session.ses_bat_list.next,
-				     lstcon_batch_t, bat_link);
-
+	list_for_each_entry(bat, &console_session.ses_bat_list, bat_link) {
 		lstcon_batch_destroy(bat);
 	}
 
 	/* destroy all groups */
-	while (!list_empty(&console_session.ses_grp_list)) {
-		grp = list_entry(console_session.ses_grp_list.next,
-				     lstcon_group_t, grp_link);
+	list_for_each_entry(grp, &console_session.ses_grp_list, grp_link) {
 		LASSERT(grp->grp_ref == 1);
 
 		lstcon_group_put(grp);

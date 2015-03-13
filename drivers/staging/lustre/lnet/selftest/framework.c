@@ -621,16 +621,12 @@ sfw_destroy_test_instance(sfw_test_instance_t *tsi)
 	LASSERT(list_empty(&tsi->tsi_active_rpcs));
 	LASSERT(!sfw_test_active(tsi));
 
-	while (!list_empty(&tsi->tsi_units)) {
-		tsu = list_entry(tsi->tsi_units.next,
-				     sfw_test_unit_t, tsu_list);
+	list_for_each_entry(tsu, &tsi->tsi_units, tsu_list) {
 		list_del(&tsu->tsu_list);
 		LIBCFS_FREE(tsu, sizeof(*tsu));
 	}
 
-	while (!list_empty(&tsi->tsi_free_rpcs)) {
-		rpc = list_entry(tsi->tsi_free_rpcs.next,
-				     srpc_client_rpc_t, crpc_list);
+	list_for_each_entry(rpc, &tsi->tsi_free_rpcs, crpc_list) {
 		list_del(&rpc->crpc_list);
 		LIBCFS_FREE(rpc, srpc_client_rpc_size(rpc));
 	}
@@ -649,9 +645,7 @@ sfw_destroy_batch(sfw_batch_t *tsb)
 	LASSERT(!sfw_batch_active(tsb));
 	LASSERT(list_empty(&tsb->bat_list));
 
-	while (!list_empty(&tsb->bat_tests)) {
-		tsi = list_entry(tsb->bat_tests.next,
-				     sfw_test_instance_t, tsi_list);
+	list_for_each_entry(tsi, &tsb->bat_tests, tsi_list) {
 		list_del_init(&tsi->tsi_list);
 		sfw_destroy_test_instance(tsi);
 	}
@@ -668,9 +662,7 @@ sfw_destroy_session(sfw_session_t *sn)
 	LASSERT(list_empty(&sn->sn_list));
 	LASSERT(sn != sfw_data.fw_session);
 
-	while (!list_empty(&sn->sn_batches)) {
-		batch = list_entry(sn->sn_batches.next,
-				       sfw_batch_t, bat_list);
+	list_for_each_entry(batch, &sn->sn_batches, bat_list) {
 		list_del_init(&batch->bat_list);
 		sfw_destroy_batch(batch);
 	}
@@ -1790,9 +1782,7 @@ sfw_shutdown(void)
 		srpc_wait_service_shutdown(sv);
 	}
 
-	while (!list_empty(&sfw_data.fw_tests)) {
-		tsc = list_entry(sfw_data.fw_tests.next,
-				     sfw_test_case_t, tsc_list);
+	list_for_each_entry(tsc, &sfw_data.fw_tests, tsc_list) {
 
 		srpc_wait_service_shutdown(tsc->tsc_srv_service);
 

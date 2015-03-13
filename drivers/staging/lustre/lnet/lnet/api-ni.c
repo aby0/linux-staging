@@ -923,9 +923,7 @@ lnet_shutdown_lndnis(void)
 	the_lnet.ln_shutdown = 1;	/* flag shutdown */
 
 	/* Unlink NIs from the global table */
-	while (!list_empty(&the_lnet.ln_nis)) {
-		ni = list_entry(the_lnet.ln_nis.next,
-				    lnet_ni_t, ni_list);
+	list_for_each_entry(ni, &the_lnet.ln_nis, ni_list) {
 		/* move it to zombie list and nobody can find it anymore */
 		list_move(&ni->ni_list, &the_lnet.ln_nis_zombie);
 		lnet_ni_decref_locked(ni, 0);	/* drop ln_nis' ref */
@@ -963,12 +961,10 @@ lnet_shutdown_lndnis(void)
 	/* Now wait for the NI's I just nuked to show up on ln_zombie_nis
 	 * and shut them down in guaranteed thread context */
 	i = 2;
-	while (!list_empty(&the_lnet.ln_nis_zombie)) {
+	list_for_each_entry(ni, &the_lnet.ln_nis_zombie, ni_list) {
 		int	*ref;
 		int	j;
 
-		ni = list_entry(the_lnet.ln_nis_zombie.next,
-				    lnet_ni_t, ni_list);
 		list_del_init(&ni->ni_list);
 		cfs_percpt_for_each(ref, j, ni->ni_refs) {
 			if (*ref == 0)
@@ -1044,8 +1040,7 @@ lnet_startup_lndnis(void)
 	if (rc != 0)
 		goto failed;
 
-	while (!list_empty(&nilist)) {
-		ni = list_entry(nilist.next, lnet_ni_t, ni_list);
+	list_for_each_entry(ni, &nilist, ni_list) {
 		lnd_type = LNET_NETTYP(LNET_NIDNET(ni->ni_nid));
 
 		LASSERT(libcfs_isknown_lnd(lnd_type));
@@ -1155,8 +1150,7 @@ lnet_startup_lndnis(void)
  failed:
 	lnet_shutdown_lndnis();
 
-	while (!list_empty(&nilist)) {
-		ni = list_entry(nilist.next, lnet_ni_t, ni_list);
+	list_for_each_entry(ni, &nilist, ni_list) {
 		list_del(&ni->ni_list);
 		lnet_ni_free(ni);
 	}

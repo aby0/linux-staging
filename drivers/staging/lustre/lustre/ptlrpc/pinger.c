@@ -610,10 +610,7 @@ static int ping_evictor_main(void *arg)
 		 * lose the last ref on the export.  If they've already been
 		 * removed from the list, we won't find them here. */
 		spin_lock(&obd->obd_dev_lock);
-		while (!list_empty(&obd->obd_exports_timed)) {
-			exp = list_entry(obd->obd_exports_timed.next,
-					     struct obd_export,
-					     exp_obd_chain_timed);
+		list_for_each_entry(exp, &obd->obd_exports_timed, exp_obd_chain_timed) {
 			if (expire_time > exp->exp_last_request_time) {
 				class_export_get(exp);
 				spin_unlock(&obd->obd_dev_lock);

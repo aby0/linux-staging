@@ -1145,9 +1145,7 @@ lnet_prune_rc_data(int wait_unlink)
 
 		lnet_net_unlock(LNET_LOCK_EX);
 
-		while (!list_empty(&head)) {
-			rcd = list_entry(head.next,
-					     lnet_rc_data_t, rcd_list);
+		list_for_each_entry(rcd, &head, rcd_list) {
 			list_del_init(&rcd->rcd_list);
 			lnet_destroy_rc_data(rcd);
 		}
@@ -1294,11 +1292,9 @@ lnet_rtrpool_free_bufs(lnet_rtrbufpool_t *rbp)
 	LASSERT(list_empty(&rbp->rbp_msgs));
 	LASSERT(rbp->rbp_credits == rbp->rbp_nbuffers);
 
-	while (!list_empty(&rbp->rbp_bufs)) {
+	list_for_each_entry(rb, &rbp->rbp_bufs, rb_list) {
 		LASSERT(rbp->rbp_credits > 0);
 
-		rb = list_entry(rbp->rbp_bufs.next,
-				    lnet_rtrbuf_t, rb_list);
 		list_del(&rb->rb_list);
 		lnet_destroy_rtrbuf(rb, npages);
 		nbuffers++;

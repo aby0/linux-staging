@@ -997,7 +997,6 @@ ksocknal_connecting(ksock_peer_t *peer, __u32 ipaddr)
 	ksock_route_t   *route;
 
 	list_for_each_entry(route, &peer->ksnp_routes, ksnr_list) {
-
 		if (route->ksnr_ipaddr == ipaddr)
 			return route->ksnr_connecting;
 	}
@@ -1531,9 +1530,7 @@ ksocknal_finalize_zcreq(ksock_conn_t *conn)
 
 	spin_unlock(&peer->ksnp_lock);
 
-	while (!list_empty(&zlist)) {
-		tx = list_entry(zlist.next, ksock_tx_t, tx_zc_list);
-
+	list_for_each_entry(tx, &zlist, tx_zc_list) {
 		list_del(&tx->tx_zc_list);
 		ksocknal_tx_decref(tx);
 	}
@@ -2234,8 +2231,7 @@ ksocknal_free_buffers(void)
 		list_del_init(&ksocknal_data.ksnd_idle_noop_txs);
 		spin_unlock(&ksocknal_data.ksnd_tx_lock);
 
-		while (!list_empty(&zlist)) {
-			tx = list_entry(zlist.next, ksock_tx_t, tx_list);
+		list_for_each_entry(tx, &zlist, tx_list) {
 			list_del(&tx->tx_list);
 			LIBCFS_FREE(tx, tx->tx_desc_size);
 		}

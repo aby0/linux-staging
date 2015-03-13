@@ -510,9 +510,7 @@ lnet_finalize(lnet_ni_t *ni, lnet_msg_t *msg, int status)
 
 	container->msc_finalizers[my_slot] = current;
 
-	while (!list_empty(&container->msc_finalizing)) {
-		msg = list_entry(container->msc_finalizing.next,
-				     lnet_msg_t, msg_list);
+	list_for_each_entry(msg, &container->msc_finalizing, msg_list) {
 
 		list_del(&msg->msg_list);
 
