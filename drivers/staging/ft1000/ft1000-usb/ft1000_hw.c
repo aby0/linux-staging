@@ -457,10 +457,8 @@ static int ft1000_reset_card(struct net_device *dev)
 	ft1000dev->fProvComplete = false;
 
 	/* Make sure we free any memory reserve for provisioning */
-	while (list_empty(&info->prov_list) == 0) {
+	list_for_each_entry(ptr, &info->prov_list, list) {
 		pr_debug("deleting provisioning record\n");
-		ptr =
-			list_entry(info->prov_list.next, struct prov_record, list);
 		list_del(&ptr->list);
 		kfree(ptr->pprov_data);
 		kfree(ptr);

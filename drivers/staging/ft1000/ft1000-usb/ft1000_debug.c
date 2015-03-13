@@ -259,8 +259,7 @@ void ft1000_destroy_dev(struct net_device *netdev)
 
 		/* Make sure we free any memory reserve for slow Queue */
 		for (i = 0; i < MAX_NUM_APP; i++) {
-			while (list_empty(&dev->app_info[i].app_sqlist) == 0) {
-				pdpram_blk = list_entry(dev->app_info[i].app_sqlist.next, struct dpram_blk, list);
+			list_for_each_entry(pdpram_blk, &dev->app_info[i].app_sqlist, list) {
 				list_del(&pdpram_blk->list);
 				ft1000_free_buffer(pdpram_blk, &freercvpool);
 
@@ -270,8 +269,7 @@ void ft1000_destroy_dev(struct net_device *netdev)
 
 		/* Remove buffer allocated for receive command data */
 		if (ft1000_flarion_cnt == 0) {
-			while (list_empty(&freercvpool) == 0) {
-				ptr = list_entry(freercvpool.next, struct dpram_blk, list);
+			list_for_each_entry(ptr, &freercvpool, list) {
 				list_del(&ptr->list);
 				kfree(ptr->pbuffer);
 				kfree(ptr);
@@ -763,9 +761,8 @@ static int ft1000_release(struct inode *inode, struct file *file)
 	if (i == MAX_NUM_APP)
 		return 0;
 
-	while (list_empty(&ft1000dev->app_info[i].app_sqlist) == 0) {
+	list_for_each_entry(pdpram_blk, &ft1000dev->app_info[i].app_sqlist, list) {
 		pr_debug("Remove and free memory queue up on slow queue\n");
-		pdpram_blk = list_entry(ft1000dev->app_info[i].app_sqlist.next, struct dpram_blk, list);
 		list_del(&pdpram_blk->list);
 		ft1000_free_buffer(pdpram_blk, &freercvpool);
 	}

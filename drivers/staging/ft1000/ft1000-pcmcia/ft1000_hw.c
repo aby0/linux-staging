@@ -373,9 +373,8 @@ static int ft1000_reset_card(struct net_device *dev)
 	/* del_timer(&poll_timer); */
 
 	/* Make sure we free any memory reserve for provisioning */
-	while (list_empty(&info->prov_list) == 0) {
+	list_for_each_entry(ptr, &info->prov_list, list) {
 		pr_debug("deleting provisioning record\n");
-		ptr = list_entry(info->prov_list.next, struct prov_record, list);
 		list_del(&ptr->list);
 		kfree(ptr->pprov_data);
 		kfree(ptr);
@@ -963,7 +962,7 @@ static void ft1000_proc_drvmsg(struct net_device *dev)
 		case DSP_PROVISION:
 			pr_debug("Got a provisioning request message from DSP\n");
 			mdelay(25);
-			while (list_empty(&info->prov_list) == 0) {
+			list_for_each_entry(ptr, &info->prov_list, list) {
 				pr_debug("Sending a provisioning message\n");
 				/* Make sure SLOWQ doorbell is clear */
 				tempword =
@@ -975,9 +974,6 @@ static void ft1000_proc_drvmsg(struct net_device *dev)
 					if (i == 10)
 						break;
 				}
-				ptr =
-					list_entry(info->prov_list.next,
-						   struct prov_record, list);
 				len = *(u16 *)ptr->pprov_data;
 				len = htons(len);
 
@@ -1979,8 +1975,7 @@ void stop_ft1000_card(struct net_device *dev)
 	ft1000_disable_interrupts(dev);
 
 	/* Make sure we free any memory reserve for provisioning */
-	while (list_empty(&info->prov_list) == 0) {
-		ptr = list_entry(info->prov_list.next, struct prov_record, list);
+	list_for_each_entry(ptr, &info->prov_list, list) {
 		list_del(&ptr->list);
 		kfree(ptr->pprov_data);
 		kfree(ptr);
