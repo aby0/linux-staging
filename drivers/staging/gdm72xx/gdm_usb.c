@@ -704,8 +704,7 @@ static int k_mode_thread(void *arg)
 
 	while (!k_mode_stop) {
 		spin_lock_irqsave(&k_lock, flags2);
-		while (!list_empty(&k_list)) {
-			udev = list_entry(k_list.next, struct usbwm_dev, list);
+		list_for_each_entry(udev, &k_list, list) {
 			tx = &udev->tx;
 			rx = &udev->rx;
 
