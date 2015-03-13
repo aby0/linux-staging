@@ -44,7 +44,8 @@ int hw_sm750_map(struct lynx_share* share,struct pci_dev* pdev)
 	 * successfully
 	 * */
 
-	if((ret = pci_request_region(pdev,1,"sm750fb")))
+	ret = pci_request_region(pdev, 1, "sm750fb");
+	if (ret)
 	{
 		pr_err("Can not request PCI regions.\n");
 		goto exit;
